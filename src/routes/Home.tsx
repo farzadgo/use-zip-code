@@ -96,9 +96,9 @@ const Home = () => {
   
 
 	return (
-		<div className='sm:p-10 p-4'>
+		<div className='sm:p-10 px-4 py-10'>
 
-      <div className='flex flex-col gap-4 max-w-[600px] mb-20 border border-zinc-300 bg-zinc-100 rounded-xl p-4'>
+      <div className='flex flex-col gap-4 max-w-[600px] mb-10 border border-zinc-300 bg-zinc-100 rounded-xl p-4'>
         <h3 className=''> select a country first </h3>
 
         <select
