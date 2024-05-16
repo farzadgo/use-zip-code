@@ -15,6 +15,6 @@ export type Place = {
 
 export type Data = {
   country: string,
-  countryAbbreviation: string,
+  ['country abbreviation']: string,
   places: Place[]
 }

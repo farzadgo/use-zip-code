@@ -23,13 +23,13 @@ const Home = () => {
 
   const [country, setCountry] = useState({} as Country)
   const selected = typeof country.name === 'undefined' ? true : false;
-	
+
   const [query, setQuery] = useState('')
   const [queryChanged, setQueryChanged] = useState('')
 
-	const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-	const [data, setData] = useState({} as Data)
+  const [data, setData] = useState({} as Data)
   const [error, setError] = useState({} as AxiosError)
 
   const deselectedCountries = countries.filter(c => c.name !== country.name)
@@ -42,12 +42,8 @@ const Home = () => {
 
   const checkLength = (input: string): boolean => {
     let sampleCode = country.range.split(' : ')[0]
-    if (input.length !== sampleCode.length) {
-      console.log('invalid length');
-      return false
-    } else {
-      return true
-    }
+    let test = input.length !== sampleCode.length ? false : true;
+    return test
   }
 
 
@@ -58,9 +54,9 @@ const Home = () => {
   }
 
 
-	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setQuery(event.target.value)
-	}
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(event.target.value)
+  }
 
 
   const handleSubmit = (event: { preventDefault: () => void; }) => {
@@ -76,9 +72,9 @@ const Home = () => {
     if (error) setError({} as AxiosError)
     if (data) setData({} as Data)
     if (query) {
-			setLoading(true)
-			fetchData(query)
-		}
+      setLoading(true)
+      fetchData(query)
+    }
     setQueryChanged(query)
   }
 
@@ -95,8 +91,8 @@ const Home = () => {
   }
   
 
-	return (
-		<div className='sm:p-10 px-4 py-10'>
+  return (
+    <div className='sm:p-10 px-4 py-10'>
 
       <div className='flex flex-col gap-4 max-w-[600px] mb-10 border border-zinc-300 bg-zinc-100 rounded-xl p-4'>
         <h3 className=''> select a country first </h3>
@@ -134,10 +130,10 @@ const Home = () => {
 
       </div>
 
-			{ loading ? <Loader /> : <Result data={data} error={error}/> }
+      { loading ? <Loader /> : <Result data={data} error={error}/> }
 
-		</div>
-	)
+    </div>
+  )
 }
 
 export default Home
