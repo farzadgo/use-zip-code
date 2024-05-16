@@ -18,3 +18,10 @@ export type Data = {
   ['country abbreviation']: string,
   places: Place[]
 }
+
+export type InputProps = {
+  selected: boolean;
+  country: Country;
+  handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSubmit: (event: { preventDefault: () => void; }, flag: string) => void;
+}

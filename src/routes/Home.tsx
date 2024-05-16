@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import axios, { AxiosError } from 'axios';
-// import { useNavigate } from 'react-router-dom';
+import Input from '../components/Input';
+import InputMask from '../components/InputMask';
 import Loader from '../components/Loader';
 import Result from '../components/Result';
-import { ArrowRight, HelpCircle } from 'react-feather';
 
 import { Country, Data } from '../types';
 
@@ -18,11 +18,13 @@ const Home = () => {
     { name: 'Spain', code: 'es', range: '01001 : 52080' },
     { name: 'Italy', code: 'it', range: '00100 : 98168' },
     { name: 'Hungary', code: 'hu', range: '1011 : 9985' },
+    { name: 'Brazil', code: 'br', range: '01000-000 : 99990-000' },
+    { name: 'Luxembourg', code: 'lu', range: 'L-1000 : L-9999' },
     { name: 'India', code: 'in', range: '110001 : 999999' }
   ];
 
   const [country, setCountry] = useState({} as Country)
-  const selected = typeof country.name === 'undefined' ? true : false;
+  const selected = typeof country.name === 'undefined' ? false : true;
 
   const [query, setQuery] = useState('')
   const [queryChanged, setQueryChanged] = useState('')
@@ -59,14 +61,16 @@ const Home = () => {
   }
 
 
-  const handleSubmit = (event: { preventDefault: () => void; }) => {
+  const handleSubmit = (event: { preventDefault: () => void; }, flag: string) => {
     event.preventDefault()
-    checkLength(query)
+    
     if (query === queryChanged) return
 
-    if (!isNumericString(query) || !checkLength(query)) {
-      alert('enter a valid zip code or check the range of the selected country')
-      return
+    if (flag === 'nomask') {
+      if (!isNumericString(query) || !checkLength(query)) {
+        alert('enter a valid zip code or check the range of the selected country')
+        return
+      }
     }
     
     if (error) setError({} as AxiosError)
@@ -106,27 +110,8 @@ const Home = () => {
           {deselectedCountries.map((c, i) => <option key={i} value={c.code}> {c.name} </option>)}
         </select>
 
-        <div className={`${selected ? 'hidden' : 'block'} text-sm flex items-center`}>
-          <HelpCircle className='h-4 stroke-[#555] mr-1'/>
-          <i>zip code range: {country.range}</i>
-        </div>
-
-        <form className={`${selected ? 'opacity-50' : 'opacity-100'} flex items-center gap-3 h-10`} onSubmit={handleSubmit}>
-          <input
-            className='border border-zinc-300 rounded-md px-2 py-1 h-full w-full'
-            disabled={selected ? true : false}
-            type="text" name="search"
-            placeholder='enter a zip-code'
-            onChange={handleChange}
-          />
-          <button
-            disabled={selected ? true : false}
-            className='h-full w-12 flex justify-center items-center rounded-md bg-gradient-to-r from-indigo-300 to-emerald-300'
-            type="submit"
-          >
-            <ArrowRight className='h-6 w-6 stroke-[1.5] stroke-[#333]'/>
-          </button>
-        </form>
+        <Input selected={selected} country={country} handleChange={handleChange} handleSubmit={handleSubmit}/>
+        <InputMask selected={selected} country={country} handleChange={handleChange} handleSubmit={handleSubmit}/>
 
       </div>
 
