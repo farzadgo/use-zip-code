@@ -20,8 +20,8 @@ export type Data = {
 }
 
 export type InputProps = {
-  selected: boolean;
+  reset: boolean;
   country: Country;
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (event: { preventDefault: () => void; }, flag: string) => void;
+  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }

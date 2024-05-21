@@ -19,7 +19,7 @@ const Result = ({ data, error }: { data: Data, error: AxiosError }) => {
   
 
   return (
-    <div className={`${showPlaces || errorMessage ? 'flex' : 'hidden'} flex-col gap-4 max-w-[600px] mb-20 bg-gradient-to-r from-indigo-300 from-10% via-sky-200 via-30% to-emerald-300 to-90% rounded-xl py-6 px-4`}>
+    <div className={`${showPlaces || errorMessage ? 'flex' : 'hidden'} flex-col gap-4 max-w-[600px] mb-20 bg-gradient-to-r from-indigo-300 from-10% via-sky-200 via-30% to-emerald-300 to-90% rounded-xl py-6 px-4 mx-auto`}>
       { errorMessage && <div>
         <p className='font-bold mb-6'>zipCode not available 😥</p>
         <p className='text-sm'><code>{errorMessage}</code></p>
