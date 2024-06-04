@@ -1,57 +1,96 @@
 import { useState, useRef, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
-import { cities } from '../cities_DE';
 import { ArrowRight } from 'react-feather';
+import Container from '../components/Container';
+import InputContainer from '../components/InputContainer';
 import Loader from '../components/Loader';
+import { State } from '../types';
+
+const baseUrl = 'https://api.zippopotam.us/de';
+
+const states: State[] = [
+  { name: 'Baden-Württemberg', abbreviation: 'BW' },
+  { name: 'Bayern (Bavaria)', abbreviation: 'BY' },
+  { name: 'Berlin', abbreviation: 'BE' },
+  { name: 'Brandenburg', abbreviation: 'BB' },
+  { name: 'Bremen', abbreviation: 'HB' },
+  { name: 'Hamburg', abbreviation: 'HH' },
+  { name: 'Hessen (Hesse)', abbreviation: 'HE' },
+  { name: 'Mecklenburg-Vorpommern', abbreviation: 'MV' },
+  { name: 'Niedersachsen (Lower Saxony)', abbreviation: 'NI' },
+  { name: 'Nordrhein-Westfalen (North Rhine-Westphalia)', abbreviation: 'NW' },
+  { name: 'Rheinland-Pfalz (Rhineland-Palatinate)', abbreviation: 'RP' },
+  { name: 'Saarland', abbreviation: 'SL' },
+  { name: 'Sachsen (Saxony)', abbreviation: 'SN' },
+  { name: 'Sachsen-Anhalt (Saxony-Anhalt)', abbreviation: 'ST' },
+  { name: 'Schleswig-Holstein', abbreviation: 'SH' },
+  { name: 'Thüringen (Thuringia)', abbreviation: 'TH' },
+];
+
 
 const Cities = () => {
 
-  const baseUrl = 'https://api.zippopotam.us/de/';
-
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const [query, setQuery] = useState('' as string);
+  const [state, setState] = useState('BW' as string);
+
+  const [places, setPlaces] = useState([] as any[]);
+  const [placeNames, setPlaceNames] = useState([] as string[]);
 
   const [reset, setReset] = useState(true);
   const [selected, setSelected] = useState(false as boolean);
-  
-  const [query, setQuery] = useState('' as string);
 
   const [loading, setLoading] = useState(false as boolean);
   const [data, setData] = useState({} as any)
   const [error, setError] = useState({} as AxiosError)
 
 
-  const handleSuggestin = (city: string) => {
+  const handleSuggestion = (city: string) => {
     setQuery(city);
     setSelected(true);
   }
 
+  const handleState = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setPlaceNames([] as string[]);
+    setQuery('');
+    setState(event.target.value);
+  }
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setReset(true);
     setQuery(e.target.value);
     setSelected(false);
+    if (e.target.value) {
+      fetchPlaces(e.target.value);
+    }
   }
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
-    let city = query;
-    let state = cities.find(item => item.city === city)?.state as string;
 
     setError({} as AxiosError);
     setData({} as any);
 
-    if (city && state) {
+    if (query) {
       setLoading(true);
-      fetchData(city, state);
+      fetchData();
     }
 
     setReset(false);
     setQuery('');
+    setPlaceNames([] as string[]);
     setSelected(false);
-  }  
+  }
 
-  const fetchData = async (city: string, state: string) => {
+
+  const fetchPlaces = async (city: string) => {
+    const result = await axios(`${baseUrl}/${state}/${city}`)
+    setPlaces(result.data.places)
+  }
+
+  const fetchData = async () => {
     try {
-      const result = await axios(`${baseUrl}${state}/${city}`)
+      const result = await axios(`${baseUrl}/${state}/${query}`)
       setData(result.data)
       setLoading(false)
     } catch (error) {
@@ -60,61 +99,82 @@ const Cities = () => {
     }
   }
 
-  // useEffect(() => {
-  //   console.log(data);
-  //   console.log(error);
-  // }, [data, error]);
 
   useEffect(() => {
     if (inputRef.current && selected) {
       inputRef.current.focus();
     }
   }, [selected])
+
+
+  useEffect(() => {
+    if (query === '') {
+      setPlaceNames([] as string[]);
+    } else {
+      if (places.length > 0) {
+        let searchItem = query.toLowerCase();
+        let matchingPlaces = places.filter((place) => place['place name'].toLowerCase().startsWith(searchItem));
+        let placeNames = matchingPlaces.map((place) => place['place name']);
+        let matchingPlaceNames = placeNames.filter((place, index, self) => index === self.findIndex((t) => t === place));
+        setPlaceNames(matchingPlaceNames)
+      }
+    }
+  }, [places, query])
+
+
+  useEffect(() => {
+    setQuery('');
+    setPlaceNames([] as string[]);
+    setReset(true);
+  }, [state])
   
 
   return (
-    <div className='px-4 py-16 text-xl text-zinc-700'>
+    <Container>
+      <InputContainer title="zip locations in Germany by city">
 
-      <div className='flex flex-col gap-4 max-w-[600px] mb-10 border border-zinc-300 bg-zinc-100 rounded-xl p-4 mx-auto'>
-        <h3 className=''> zip locations in Germany by city </h3>
-  
-        <form className='flex items-center gap-3 h-12' onSubmit={handleSubmit}>
-          <input
-            className='border border-zinc-300 rounded-md px-2 py-1 h-full w-full'
-            type='text'
-            placeholder='e.g. Berlin, München, ...'
-            value={query} onChange={onChange} ref={inputRef}/>
-          <button
-            disabled={!selected}
-            className={`${selected ? 'opacity-100' : 'opacity-50'} h-full w-10 flex flex-shrink-0 justify-center items-center rounded-md`}
-            type="submit"
+        <form className='flex flex-col sm:flex-row items-center gap-3' onSubmit={handleSubmit}>
+          <select
+            className='border border-zinc-300 rounded-md p-1 h-12 w-full'
+            onChange={handleState}
           >
-            <ArrowRight className='h-6 w-6 stroke-[1.5] stroke-[#333]'/>
-          </button>
+            {states.map((state, i) => <option key={i} value={state.abbreviation}> {state.name} </option>)}
+          </select>
+
+          <div className='flex h-12 w-full'>
+            <input
+              className='border border-zinc-300 rounded-md px-2 py-1 h-full w-full flex-grow'
+              type='text'
+              placeholder='e.g. berlin, ham...'
+              value={query} onChange={onChange} ref={inputRef}
+            />
+  
+            <button
+              disabled={!selected}
+              className={`${selected ? 'opacity-100' : 'opacity-50'} h-full w-10 flex flex-shrink-0 justify-center items-center rounded-md`}
+              type="submit" >
+              <ArrowRight className='h-6 w-6 stroke-[1.5] stroke-[#333]'/>
+            </button>
+          </div>
         </form>
   
-        {!selected && query && <div className='text-base flex gap-2 flex-wrap'>
-          <p className='flex items-center'> select one: </p>
-          {cities.filter(item => {
-            const searchItem = query.toLowerCase();
-            const city = item.city.toLowerCase();
-            return searchItem && city.startsWith(searchItem);
-          }).map((item, index) => {
-            return (
+        {placeNames.length > 0 && 
+          <div className='text-base flex gap-3 flex-wrap'>
+            <p className='flex items-center'> suggestions: </p>
+            {placeNames.map((item, index) => 
               <div
-                className='border-2 border-zinc-200 cursor-pointer px-4 py-1 hover:bg-zinc-200 rounded-full whitespace-nowrap'
                 key={index}
-                onClick={() => handleSuggestin(item.city)}
-                > {item.city}
+                className='text-sm border-2 border-zinc-200 cursor-pointer px-4 py-1 hover:bg-zinc-200 rounded-full whitespace-nowrap'
+                onClick={() => handleSuggestion(item)}
+                > {item}
               </div>
-            )
-          })}
-        </div>}
-      </div>
-
+            )}
+          </div>
+        }
+      </InputContainer>
+  
       {!reset && <>{ loading ? <Loader /> : <MyResult data={data} error={error}/>}</>}
-
-    </div>
+    </Container>
   )
 }
 
@@ -128,7 +188,7 @@ const MyResult = ({ data, error }: { data: any, error: AxiosError }) => {
 
   if (Object.keys(error).length) {
     return (
-      <div className='flex flex-col gap-4 max-w-[600px] mb-20 border border-zinc-300 bg-zinc-100 rounded-xl py-6 px-4 mx-auto'>
+      <div className='flex flex-col gap-4 max-w-screen-sm mb-20 border border-zinc-300 bg-zinc-100 rounded-xl py-6 px-4 mx-auto'>
         <p className='font-bold mb-6'> city not available 😥</p>
         <p className='text-sm'><code>{error.message}</code></p>
       </div>
@@ -136,7 +196,7 @@ const MyResult = ({ data, error }: { data: any, error: AxiosError }) => {
   }
   
   return (
-    <div className='max-w-[600px] mx-auto border border-zinc-300 bg-zinc-100 rounded-xl p-4'>
+    <div className='max-w-screen-sm mx-auto border border-zinc-300 bg-zinc-100 rounded-xl p-4'>
 
       {Object.keys(error).length > 0 && <div> <p> {error.message} </p> </div>}
 

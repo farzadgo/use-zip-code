@@ -7,8 +7,8 @@ import Cities from './routes/Cities';
 function App() {
   
   return (
-      <Router>
-      <div id="app">
+    <Router>
+      <div id="app" className='h-screen'>
         <Header />
         <Routes>
           <Route path='/' element={<Home />} />

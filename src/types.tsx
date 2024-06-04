@@ -25,3 +25,8 @@ export type InputProps = {
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 }
+
+export type State = {
+  name: string;
+  abbreviation: string;
+};

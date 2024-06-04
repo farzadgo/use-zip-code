@@ -3,7 +3,8 @@ import axios, { AxiosError } from 'axios';
 import Input from '../components/Input';
 import Loader from '../components/Loader';
 import Result from '../components/Result';
-
+import Container from '../components/Container';
+import InputContainer from '../components/InputContainer';
 import { Country, Data } from '../types';
 
 
@@ -11,7 +12,7 @@ const Home = () => {
 
   const baseUrl = 'https://api.zippopotam.us/';
 
-  const countries = [
+  const countries: Country[] = [
     { name: 'Brazil', code: 'br', range: '01000-000 : 99990-000' },
     { name: 'Germany', code: 'de', range: '01067 : 99998' },
     { name: 'Hungary', code: 'hu', range: '1011 : 9985' },
@@ -23,7 +24,6 @@ const Home = () => {
   ];
 
   const [country, setCountry] = useState(countries[0] as Country)
-  // const selected = typeof country.name !== 'undefined';
   const [reset, setReset] = useState(true);
 
   const [query, setQuery] = useState('')
@@ -81,11 +81,9 @@ const Home = () => {
   
 
   return (
-    <div className='px-4 py-16 text-xl text-zinc-700'>
+    <Container>
 
-      <div className='flex flex-col gap-4 max-w-[600px] mb-10 border border-zinc-300 bg-zinc-100 rounded-xl p-4 mx-auto'>
-        <h3 className='text-lg'> select a country to look for a zip code </h3>
-
+      <InputContainer title="select a country to look for a zip code">
         <select
           className='border border-zinc-300 rounded-md p-1 mb-6 h-12'
           onChange={(handleCountry)}
@@ -99,11 +97,11 @@ const Home = () => {
           handleChange={handleChange}
           handleSubmit={handleSubmit}
         />
-      </div>     
+      </InputContainer>     
 
       {!reset && <>{ loading ? <Loader /> : <Result data={data} error={error}/> }</>}
 
-    </div>
+    </Container>
   )
 }
 
